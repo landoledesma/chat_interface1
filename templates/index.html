@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Básico con ChatGPT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1 class="main-title">Chat con ChatGPT</h1> <!-- Título principal -->
+    <div class="chat-container">
+        
+        <div id="messages" class="messages">
+            <!-- Aquí aparecerán los mensajes -->
+        </div>
+        <div class="input-container">
+            <input id="inputMessage" type="text" placeholder="Escribe un mensaje...">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+    <script>
+        function sendMessage() {
+            const messageElem = document.getElementById("inputMessage");
+            const message = messageElem.value;
+            
+            if (!message) return;
+            
+            appendMessage("Yo", message);
+            messageElem.value = '';
+
+            // Llamamos al endpoint en Flask para enviar el mensaje
+            fetch('/send_message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 'message': message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                appendMessage("ChatGPT", data.reply);
+            });
+        }
+
+        function appendMessage(sender, message) {
+            const messagesDiv = document.getElementById("messages");
+            const messageDiv = document.createElement("div");
+            messageDiv.textContent = `${sender}: ${message}`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>
